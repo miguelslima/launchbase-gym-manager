@@ -1,5 +1,47 @@
 const fs = require('fs');
 const data = require('./data.json');
+const { age, date } = require('./utils');
+
+exports.edit = function(req, res) {
+  const { id } = req.params;
+
+  const foundInstructor = data.instructors.find(function(instructor){
+    return instructor.id == id;
+  })
+
+  if(!foundInstructor) {
+    return res.send('Instructor not found!');
+  }
+
+  const instructor = {
+    ...foundInstructor,
+    birth: date(foundInstructor.birth)
+  }
+  
+  return res.render('instructors/edit', { instructor });
+}
+
+exports.show = function(req, res) {
+  const { id } = req.params;
+
+  const foundInstructor = data.instructors.find(function(instructor){
+    return instructor.id == id;
+  })
+
+  if(!foundInstructor) {
+    return res.send('Instructor not found!');
+  }
+
+  const instructor = {
+    ...foundInstructor,
+    age: age(foundInstructor.birth),
+    services: foundInstructor.services.split(","),
+    created_at: new Intl.DateTimeFormat('en-GB').format(foundInstructor.created_at),
+  }
+
+  return res.render('instructors/show', { instructor });
+}
+
 
 exports.post = function(req, res) {
 
@@ -17,7 +59,7 @@ exports.post = function(req, res) {
   id = Number(data.instructors.length + 1);
 
 
-  data.instructors.push(
+  data.instructors.push({
     id, 
     avatar_url, 
     name, 
@@ -25,7 +67,7 @@ exports.post = function(req, res) {
     gender,
     services, 
     created_at
-  );
+  });
 
   fs.writeFile("data.json", JSON.stringify(data, null, 2), function(err){
     if(err) return res.send("Write file error!");
