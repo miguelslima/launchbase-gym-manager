@@ -85,7 +85,7 @@ exports.put = function(req, res) {
       index = foundIndex;
       return true;
     }
-  })
+  }) 
 
   if(!foundInstructor) {
     return res.send('Instructor not found!');
@@ -103,5 +103,21 @@ exports.put = function(req, res) {
     if(err) return res.send("Write error!");
     
     return res.redirect(`/instructors/${id}`);
+  })
+}
+
+exports.delete = function(req, res) {
+  const { id } = req.body;
+
+  const filteredInstructos = data.instructors.filter(function(instructor){
+    return instructor.id != id;
+  });
+
+  data.instructor = filteredInstructos;
+
+  fs.writeFile("data.json", JSON.stringify(data, null, 2), function(err) {
+    if(err) return res.send("Write error!");
+
+    return res.redirect("/instructors");
   })
 }
